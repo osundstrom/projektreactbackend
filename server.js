@@ -42,5 +42,5 @@ mongoose.connect(process.env.URL)
 //---------------------------startar----------------------------------//
 
 app.listen(process.env.PORT, () => {
-    console.log("Startar server");
+    console.log(`Startar server på: ${PORT}`);
 });
