@@ -14,6 +14,9 @@ const mongoose = require("mongoose");
 //cors
 const cors = require("@koa/cors");
 
+//routers
+const userRouter = require("./routes/userRoute.js"); 
+const reviewRouter = require("./routes/reviewRoute.js"); 
 
 
 //---------------------------Använder----------------------------------//
@@ -29,6 +32,12 @@ app.use(cors());
 app.use(bodyParser());
 
 
+//---------------------------Routes----------------------------------//
+
+app.use(userRouter.routes());
+app.use(reviewRouter.routes());
+
+
 
 //---------------------------Ansluter mongodb----------------------------------//
 
@@ -42,5 +51,5 @@ mongoose.connect(process.env.URL)
 //---------------------------startar----------------------------------//
 
 app.listen(process.env.PORT, () => {
-    console.log(`Startar server på: ${PORT}`);
+    console.log("Startat server");
 });

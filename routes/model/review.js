@@ -17,7 +17,7 @@ const reviewSchema = new mongoose.Schema({
         required: true, 
     },
     grade: { 
-        type: String,
+        type: Number,
         required: true, 
     },
     post_created: { 

@@ -57,7 +57,7 @@ userSchema.statics.register = async function(username, password) {
         await oneUser.save(); 
         return oneUser; 
     } catch (error) { 
-        throw error;
+        throw new Error(error.message);
     }
 };
 
@@ -76,7 +76,7 @@ userSchema.statics.login = async function (username, password) {
             
         return oneUser;
     } catch (error) { 
-        throw error;
+        throw new Error(error.message);
     }
 };
 
