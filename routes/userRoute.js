@@ -72,7 +72,7 @@ router.post("/login", async (ctx) => {
 
         ctx.status = 200; 
         ctx.body = {
-        message: `Inloggad som: ${username}`,
+        message: `Inloggad som: ${username} {id: ${oneUser._id}}`,
         recivedToken: {token}, 
         };
 

@@ -8,11 +8,12 @@ const auth = require("./auth");
 router.post("/review",auth, async (ctx) => {
     try {
         
-        const { bookId, userId, content, grade, post_created} = ctx.request.body;
+        const { bookId, userId, username, content, grade, post_created} = ctx.request.body;
 
         const review = new reviewModel({
             bookId,
             userId,
+            username,
             content,
             grade,
             post_created
@@ -26,6 +27,7 @@ router.post("/review",auth, async (ctx) => {
         console.error(error);
         ctx.status = 400;
         ctx.body = {error: error.message};
+        ctx.message = "Något gick fel";
     }
 });
 
