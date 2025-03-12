@@ -52,6 +52,26 @@ router.get("/review/:bookId", async (ctx) => {
     }
 });
 
+//---------------------------GET baserat på användare----------------------------------//
+
+router.get("/reviews/user/:userId",auth, async (ctx) => {
+    try {
+        const userId = ctx.params.userId;
+        const userReviews = await reviewModel.find({ userId: userId });
+
+        if (userReviews.length > 0){
+            ctx.body = userReviews; 
+        } else{ 
+            ctx.status = 400; 
+            ctx.message = "Inga recensioner hittades";  
+        }
+
+    } catch (error) { 
+        ctx.status = 500; 
+        ctx.body = {error: error.message }; 
+    }
+});
+
 //---------------------------DELETE------------------------------------------//
 
 router.delete("/review/:id",auth, async (ctx) => {
