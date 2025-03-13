@@ -75,6 +75,7 @@ router.post("/login", async (ctx) => {
         message: `Inloggad som: ${username} {id: ${oneUser._id}}`,
         recivedToken: {token}, 
         userId: oneUser._id,
+        username: oneUser.username,
         };
 
     } catch (error) {

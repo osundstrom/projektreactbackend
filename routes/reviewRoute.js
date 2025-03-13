@@ -52,6 +52,26 @@ router.get("/review/:bookId", async (ctx) => {
     }
 });
 
+
+//---------------------------GET baserat _id----------------------------------//
+router.get("/review/one/:id", async (ctx) => { 
+    try {
+        const id = ctx.params.id;
+        const reviewsBook = await reviewModel.findById(id);
+        
+        if (reviewsBook) {
+            ctx.body = reviewsBook; 
+        } else { 
+            ctx.status = 400; 
+            ctx.message = "Inga recensioner finns"  
+        }
+
+    } catch (error) { 
+        ctx.status = 500; 
+        ctx.body = {Error: error.message}; 
+    }
+});
+
 //---------------------------GET baserat på användare----------------------------------//
 
 router.get("/reviews/user/:userId",auth, async (ctx) => {
@@ -75,7 +95,7 @@ router.get("/reviews/user/:userId",auth, async (ctx) => {
 //---------------------------DELETE------------------------------------------//
 
 router.delete("/review/:id",auth, async (ctx) => {
-    const {id} = ctx.params; 
+    const id = ctx.params.id;
     try {
         
         const reviewDelete = await reviewModel.findByIdAndDelete(id); 
@@ -94,5 +114,31 @@ router.delete("/review/:id",auth, async (ctx) => {
     }
 });
 
+
+//---------------------------PUT------------------------------------------//
+
+router.put("/review/:id", auth, async (ctx) => { 
+    try {
+        const id = ctx.params.id;
+
+        
+        const updatedReview = await reviewModel.findByIdAndUpdate(id, ctx.request.body);
+
+        if (updatedReview) {
+            ctx.status = 200; 
+            ctx.body = { message: "Uppdaterad"};
+        } else {
+            ctx.status = 404; 
+            ctx.body = { message: "Recensionen finns inte" };
+        }
+
+    } catch (error) { 
+        ctx.status = 400; 
+        ctx.body = {
+            message: "Misslyckad förfrågan", 
+            error: error.message 
+        };
+    }
+});
 
 module.exports = router;
