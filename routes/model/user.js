@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true, 
     },
+    role: {
+        type: String, 
+        enum: ["user", "admin"], 
+        default: "user", 
+    },
     acc_created: { 
         type: Date,
         default: Date.now,
@@ -51,9 +56,9 @@ userSchema.pre("save", async function(next) {
  
 //----------------------------Skapa ny användare------------------------------//
 
-userSchema.statics.register = async function(username, password) {
+userSchema.statics.register = async function(username, password, role) {
     try {
-        const oneUser = new this({username: username.toLowerCase(), password}); 
+        const oneUser = new this({username: username.toLowerCase(), password, role}); 
         await oneUser.save(); 
         return oneUser; 
     } catch (error) { 

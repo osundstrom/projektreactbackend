@@ -13,7 +13,7 @@ const bcrypt = require("bcrypt");
 router.post("/register", async (ctx) => {
     try {
 
-    const {username, password} = ctx.request.body;
+    const {username, password, role} = ctx.request.body;
 
     if (!username || !password) {
         ctx.status = 400;
@@ -45,7 +45,7 @@ router.post("/register", async (ctx) => {
         return;
     }
 
-    const oneUser = await userModel.register(username, password);
+    const oneUser = await userModel.register(username, password, role);
     ctx.status = 201;
     ctx.body = {message: "Användare sparad"}; 
 
@@ -66,7 +66,7 @@ router.post("/login", async (ctx) => {
         const oneUser = await userModel.login(username, password);
        
         const token = jwt.sign({
-            id: oneUser._id}, 
+            id: oneUser._id, role: oneUser.role}, 
             process.env.JWT_SECRET_KEY, 
             {expiresIn: "1h"}); 
 
@@ -76,6 +76,7 @@ router.post("/login", async (ctx) => {
         recivedToken: {token}, 
         userId: oneUser._id,
         username: oneUser.username,
+        role: oneUser.role,
         };
 
     } catch (error) {

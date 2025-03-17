@@ -8,11 +8,12 @@ const auth = require("./auth");
 router.post("/review",auth, async (ctx) => {
     try {
         
-        const { bookId, userId, username, content, grade, post_created} = ctx.request.body;
+        const { bookId, userId, title, username, content, grade, post_created} = ctx.request.body;
 
         const review = new reviewModel({
             bookId,
             userId,
+            title,
             username,
             content,
             grade,
@@ -28,6 +29,20 @@ router.post("/review",auth, async (ctx) => {
         ctx.status = 400;
         ctx.body = {error: error.message};
         ctx.message = "Något gick fel";
+    }
+});
+
+
+//---------------------------GET baserat bookId----------------------------------//
+router.get("/reviews", async (ctx) => {
+    try {
+        const reviewsBooks = await reviewModel.find(); 
+
+        ctx.body = reviewsBooks;
+
+    } catch (error) {
+        ctx.status = 500;
+        ctx.body = { error: error.message };
     }
 });
 
@@ -96,17 +111,32 @@ router.get("/reviews/user/:userId",auth, async (ctx) => {
 
 router.delete("/review/:id",auth, async (ctx) => {
     const id = ctx.params.id;
+    const user = ctx.state.user;
     try {
         
-        const reviewDelete = await reviewModel.findByIdAndDelete(id); 
+        const reviewDelete = await reviewModel.findById(id); 
         
         if(!reviewDelete) { 
             ctx.status = 404; 
             ctx.body = {message: "Recensionen finns inte"};
             
-        }else { 
-            ctx.status = 200; 
-            ctx.body = {message: "Recensionen raderad"}}
+        }
+        if(user.role === "admin") {
+            await reviewModel.findByIdAndDelete(id);
+            ctx.status = 200;
+            ctx.body = { message: "Recensionen raderad" };
+            return;
+        }
+
+        if(reviewDelete.userId === user.id) {
+            await reviewModel.findByIdAndDelete(id);
+            ctx.status = 200;
+            ctx.body = { message: "Recensionen raderad" };
+            return;
+        }
+        else { 
+            ctx.status = 403; 
+            ctx.body = {message: "Ej behörig"}}
 
         } catch (error) { 
             ctx.status = 400; 
