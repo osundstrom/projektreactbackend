@@ -56,9 +56,9 @@ router.get("/review/:bookId", async (ctx) => {
         
         if (reviewsBook.length > 0) {
             ctx.body = reviewsBook; 
-        } else { 
-            ctx.status = 400; 
-            ctx.message = "Inga recensioner finns"  
+        }else {
+            ctx.status = 200; 
+            ctx.body = []; 
         }
 
     } catch (error) { 
