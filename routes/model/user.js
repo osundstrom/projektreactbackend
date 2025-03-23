@@ -44,12 +44,12 @@ const userSchema = new mongoose.Schema({
 //pre-hook, den körs innan något sparas till databasen
 userSchema.pre("save", async function(next) { 
     try{
-        if(this.isNew || this.isModified("password")) { 
-            const encryptedPassword = await bcrypt.hash(this.password, parseInt(process.env.HASH)); 
+        if(this.isNew || this.isModified("password")) { //om nytt eller ändras 
+            const encryptedPassword = await bcrypt.hash(this.password, parseInt(process.env.HASH));  //hasha
             this.password = encryptedPassword; 
         }
         next() 
-    }catch(error) { 
+    }catch(error) { //vid error
         next(error) 
     }
 });
@@ -58,10 +58,11 @@ userSchema.pre("save", async function(next) {
 
 userSchema.statics.register = async function(username, password, role) {
     try {
+        //skapa användare och spara.
         const oneUser = new this({username: username.toLowerCase(), password, role}); 
         await oneUser.save(); 
         return oneUser; 
-    } catch (error) { 
+    } catch (error) { //vid error
         throw new Error(error.message);
     }
 };
@@ -71,16 +72,18 @@ userSchema.statics.register = async function(username, password, role) {
 
 userSchema.statics.login = async function (username, password) {
     try {
+        //hitta baserat på username
         const oneUser = await this.findOne({username: username.toLowerCase()}); 
         if(!oneUser) { 
             throw new error("Ogiltiga uppgifter"); }  
-
+        
+        //jämför lösenord
         const passwordMatch = await bcrypt.compare(password, oneUser.password);
         if(!passwordMatch) { 
             throw new error("Ogiltigta uppgifter");}
             
         return oneUser;
-    } catch (error) { 
+    } catch (error) {  //vid error
         throw new Error(error.message);
     }
 };

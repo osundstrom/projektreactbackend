@@ -7,10 +7,11 @@ const auth = require("./auth");
 
 router.post("/review",auth, async (ctx) => {
     try {
-        
+        //hämtra från body
         const { bookId, userId, title, username, content, grade, post_created} = ctx.request.body;
 
-        const review = new reviewModel({
+        //ny recension
+        const review = new reviewModel({ 
             bookId,
             userId,
             title,
@@ -20,11 +21,11 @@ router.post("/review",auth, async (ctx) => {
             post_created
         });
 
-        await review.save(); 
+        await review.save(); //spara
         ctx.status = 201; 
         ctx.body = {message: "recension tillagd", review};
         
-    } catch (error) { 
+    } catch (error) { //vid error
         console.error(error);
         ctx.status = 400;
         ctx.body = {error: error.message};
@@ -36,11 +37,12 @@ router.post("/review",auth, async (ctx) => {
 //---------------------------GET baserat bookId----------------------------------//
 router.get("/reviews", async (ctx) => {
     try {
+        //hämtar alla recensioner
         const reviewsBooks = await reviewModel.find(); 
 
         ctx.body = reviewsBooks;
 
-    } catch (error) {
+    } catch (error) { //vid error
         ctx.status = 500;
         ctx.body = { error: error.message };
     }
@@ -51,17 +53,18 @@ router.get("/reviews", async (ctx) => {
 //---------------------------GET baserat bookId----------------------------------//
 router.get("/review/:bookId", async (ctx) => { 
     try {
-        const oneIdBook = ctx.params.bookId;
+        const oneIdBook = ctx.params.bookId; //bookId
+        //hämta alla recensionr för boken
         const reviewsBook = await reviewModel.find({bookId: oneIdBook}); 
         
-        if (reviewsBook.length > 0) {
+        if (reviewsBook.length > 0) { //om det finns
             ctx.body = reviewsBook; 
-        }else {
+        }else { //annars tom 
             ctx.status = 200; 
             ctx.body = []; 
         }
 
-    } catch (error) { 
+    } catch (error) { //vid error
         ctx.status = 500; 
         ctx.body = {Error: error.message}; 
     }
@@ -71,17 +74,18 @@ router.get("/review/:bookId", async (ctx) => {
 //---------------------------GET baserat _id----------------------------------//
 router.get("/review/one/:id", async (ctx) => { 
     try {
-        const id = ctx.params.id;
+        const id = ctx.params.id;//id
+        //Hämta just den recensionen baserat på id
         const reviewsBook = await reviewModel.findById(id);
         
-        if (reviewsBook) {
+        if (reviewsBook) { //om finns
             ctx.body = reviewsBook; 
         } else { 
             ctx.status = 400; 
             ctx.message = "Inga recensioner finns"  
         }
 
-    } catch (error) { 
+    } catch (error) { //vid error
         ctx.status = 500; 
         ctx.body = {Error: error.message}; 
     }
@@ -91,17 +95,20 @@ router.get("/review/one/:id", async (ctx) => {
 
 router.get("/reviews/user/:userId",auth, async (ctx) => {
     try {
-        const userId = ctx.params.userId;
+        const userId = ctx.params.userId; //userid
+
+        //hämtar alla användaren recensioner
         const userReviews = await reviewModel.find({ userId: userId });
 
-        if (userReviews.length > 0){
+        if (userReviews.length > 0){ //om finns
             ctx.body = userReviews; 
         } else{ 
             ctx.status = 400; 
-            ctx.message = "Inga recensioner hittades";  
+            ctx.message = "Inga recensioner hittades"; 
+            ctx.body = []; 
         }
 
-    } catch (error) { 
+    } catch (error) { //vid error
         ctx.status = 500; 
         ctx.body = {error: error.message }; 
     }
@@ -110,25 +117,25 @@ router.get("/reviews/user/:userId",auth, async (ctx) => {
 //---------------------------DELETE------------------------------------------//
 
 router.delete("/review/:id",auth, async (ctx) => {
-    const id = ctx.params.id;
-    const user = ctx.state.user;
+    const id = ctx.params.id; //id
+    const user = ctx.state.user; //användare
     try {
-        
+        //hämta baserat på id
         const reviewDelete = await reviewModel.findById(id); 
         
-        if(!reviewDelete) { 
+        if(!reviewDelete) { //om ej hittas
             ctx.status = 404; 
             ctx.body = {message: "Recensionen finns inte"};
             
         }
-        if(user.role === "admin") {
-            await reviewModel.findByIdAndDelete(id);
+        if(user.role === "admin") { //om admin
+            await reviewModel.findByIdAndDelete(id); //radera alla recenioner
             ctx.status = 200;
             ctx.body = { message: "Recensionen raderad" };
             return;
         }
 
-        if(reviewDelete.userId === user.id) {
+        if(reviewDelete.userId === user.id) { //Om samma användare
             await reviewModel.findByIdAndDelete(id);
             ctx.status = 200;
             ctx.body = { message: "Recensionen raderad" };
@@ -138,7 +145,7 @@ router.delete("/review/:id",auth, async (ctx) => {
             ctx.status = 403; 
             ctx.body = {message: "Ej behörig"}}
 
-        } catch (error) { 
+        } catch (error) {  //vid error
             ctx.status = 400; 
             ctx.body = {error: error.message};
     }
@@ -149,12 +156,12 @@ router.delete("/review/:id",auth, async (ctx) => {
 
 router.put("/review/:id", auth, async (ctx) => { 
     try {
-        const id = ctx.params.id;
+        const id = ctx.params.id; //id
 
-        
+        //uppdatera baserat på id
         const updatedReview = await reviewModel.findByIdAndUpdate(id, ctx.request.body);
 
-        if (updatedReview) {
+        if (updatedReview) { //om finns
             ctx.status = 200; 
             ctx.body = { message: "Uppdaterad"};
         } else {
@@ -162,7 +169,7 @@ router.put("/review/:id", auth, async (ctx) => {
             ctx.body = { message: "Recensionen finns inte" };
         }
 
-    } catch (error) { 
+    } catch (error) {  //vid erro
         ctx.status = 400; 
         ctx.body = {
             message: "Misslyckad förfrågan", 
